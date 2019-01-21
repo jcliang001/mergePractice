@@ -1,0 +1,10 @@
+
+exit df
+pwd 
+pwd              fd
+pwd                         
+cd fdfd df
+cd                               
+pwd
+cd workspace
+pwd
