@@ -93,6 +93,7 @@ void newProcess(std::vector<std::string> arguments){
     pid = fork();
     //after we initialize the pid, 
     if(pid == 0){
+        cout << pid;
         int size = arguments.size();
         char *argm[size+1];
         for(unsigned int i=0; i < size; i++){
@@ -124,7 +125,10 @@ int main(int argc, char** argv){
     std::vector<std::string> arguments;//store the argument.
     std::string line;
     
-    std::vector<std::string> selection{"cd","exit","pwd"};
+    std::vector<std::string> selection;
+    selection.push_back("cd");
+    selection.push_back("exit");
+    selection.push_back("pwd");
     
     if(argc > 2){
         printStderr();
@@ -165,7 +169,7 @@ int main(int argc, char** argv){
     }
     
     else if(argc == 2){
-        std::string fileName = argv[1];
+        char* fileName = argv[1];
         std::ifstream inputFile(fileName);
         if(inputFile.fail()){
             printStderr();
