@@ -89,32 +89,7 @@ int excuteFunction(std::vector<std::string> &arguments){
 }
 
 void newProcess(std::vector<std::string> arguments){
-    pid_t pid = -1;
-    pid = fork();
-    //after we initialize the pid, 
-    if(pid == 0){
-        cout << pid;
-        int size = arguments.size();
-        char *argm[size+1];
-        for(unsigned int i=0; i < size; i++){
-            std::strcpy (argm[i], arguments.at(i).c_str());
-        }
-        argm[size] = 0;
-        execvp(argm[0],argm);
-        //if the execvp fail to run, then it will execute the following statement.
-        printStderr();
-        exit(EXIT_FAILURE);
-    }
-    //after we finish the child process, then we need to wait the parent process to finish
-    else if(pid > 0){
-        wait(0);
-        
-    }
-   // if the creation of a child process was unsuccessful, then the pid will return negative number
-   else{
-       printStderr();
-       exit(EXIT_FAILURE);
-   }
+    
 }
 
 
@@ -160,7 +135,36 @@ int main(int argc, char** argv){
             status = excuteFunction(arguments);
         else{
             status = 1; //if we can't find the command, then we continue the process.
-            newProcess(arguments);
+            
+            
+            pid_t pid = -1;
+    pid = fork();
+    //after we initialize the pid, 
+    if(pid == 0){
+        int size = arguments.size();
+        char *argm[size+1];
+        for(unsigned int i=0; i < size; i++){
+            std::strcpy (argm[i], arguments.at(i).c_str());
+        }
+        argm[size] = 0;
+        execvp(argm[0],argm);
+        //if the execvp fail to run, then it will execute the following statement.
+        printStderr();
+        exit(EXIT_FAILURE);
+    }
+    //after we finish the child process, then we need to wait the parent process to finish
+    else if(pid > 0){
+        wait(0);
+        
+    }
+   // if the creation of a child process was unsuccessful, then the pid will return negative number
+   else{
+       printStderr();
+       exit(EXIT_FAILURE);
+   }
+            
+            
+            
         }
             
         
@@ -198,7 +202,34 @@ int main(int argc, char** argv){
             status = excuteFunction(arguments);
         else{
             status = 1; //if we can't find the command, then we continue the process.
-            newProcess(arguments);
+           
+            pid_t pid = -1;
+    pid = fork();
+    //after we initialize the pid, 
+    if(pid == 0){
+        int size = arguments.size();
+        char *argm[size+1];
+        for(unsigned int i=0; i < size; i++){
+            std::strcpy (argm[i], arguments.at(i).c_str());
+        }
+        argm[size] = 0;
+        execvp(argm[0],argm);
+        //if the execvp fail to run, then it will execute the following statement.
+        printStderr();
+        exit(EXIT_FAILURE);
+    }
+    //after we finish the child process, then we need to wait the parent process to finish
+    else if(pid > 0){
+        wait(0);
+        
+    }
+   // if the creation of a child process was unsuccessful, then the pid will return negative number
+   else{
+       printStderr();
+       exit(EXIT_FAILURE);
+   }
+            
+            
         }
             
         
