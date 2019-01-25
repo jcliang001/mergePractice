@@ -25,11 +25,14 @@ void parseCommandLine(std::vector<std::string> &arguments, std::string line){
     std::stringstream inputString(line);
     std::string intermediate;
     while(getline(inputString,intermediate,' ')){
-        if(intermediate == "")
+        if(intermediate == " ")
             continue;
         
         arguments.push_back(intermediate);
     }
+
+   
+
 }
 
 void excutePwdFunction(){
@@ -90,17 +93,18 @@ int excuteFunction(std::vector<std::string> &arguments){
 
 void newProcess(std::vector<std::string> &arguments){
     
+        int size = arguments.size();
+        char **argm = new char *[size+1];
+        for(unsigned int i=0; i < size; i++){
+            char *temp = new char[arguments.at(i).length()+1];
+            std::strcpy (temp, arguments.at(i).c_str());
+            argm[i] = temp;
+        }
+        argm[size] = NULL;
+    
     int pid = fork();
     //after we initialize the pid, 
     if(pid == 0 ){
-        // cout << pid;
-        unsigned int size = arguments.size();
-        char *argm[size+1];
-        for(unsigned int i=0; i < size; i++){
-            std::strcpy (argm[i], arguments.at(i).c_str());
-        
-        }
-        argm[size] = NULL;
         if(execvp(argm[0],argm) == -1){
             printStderr();
              exit(EXIT_FAILURE);
