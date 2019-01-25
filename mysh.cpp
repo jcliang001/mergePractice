@@ -18,7 +18,7 @@ static const int EXIT = 0; // when user type exit command in the program then ex
 
 void printStderr(){
     char error_message[30] = "An error has occurred\n";
-    write(STDERR_FILENO, error_message, strlen(error_message));
+    int returnVal = write(STDERR_FILENO, error_message, strlen(error_message));
 }
 
 void parseCommandLine(std::vector<std::string> &arguments, std::string line){
@@ -34,8 +34,8 @@ void parseCommandLine(std::vector<std::string> &arguments, std::string line){
 
 void excutePwdFunction(){
     char pwd[512];
-    getcwd(pwd,sizeof(pwd));
-    cout << pwd << endl;
+    char *val = getcwd(pwd,sizeof(pwd));
+    cout << val <<endl;
 }
 
 void excuteCdFunction(std::vector<std::string> &arguments){
@@ -48,8 +48,8 @@ void excuteCdFunction(std::vector<std::string> &arguments){
     }
     else if(numOfElement == 2){
         char pwd[512];
-        getcwd(pwd,sizeof(pwd));
-        strcat(pwd,"/");
+        char * val = getcwd(pwd,sizeof(pwd));
+        strcat(val,"/");
         const char* newString = arguments[1].c_str();
         strcat(pwd,newString);
         if (chdir(pwd) != 0)
@@ -88,8 +88,36 @@ int excuteFunction(std::vector<std::string> &arguments){
     
 }
 
-void newProcess(std::vector<std::string> arguments){
+void newProcess(std::vector<std::string> &arguments){
     
+    int pid = fork();
+    //after we initialize the pid, 
+    if(pid == 0 ){
+        // cout << pid;
+        unsigned int size = arguments.size();
+        char *argm[size+1];
+        for(unsigned int i=0; i < size; i++){
+            std::strcpy (argm[i], arguments.at(i).c_str());
+        
+        }
+        argm[size] = NULL;
+        if(execvp(argm[0],argm) == -1){
+            printStderr();
+             exit(EXIT_FAILURE);
+        }
+        //if the execvp fail to run, then it will execute the following statement.
+       
+    }
+    //after we finish the child process, then we need to wait the parent process to finish
+    else if(pid > 0){
+        wait(0);
+        
+    }
+   // if the creation of a child process was unsuccessful, then the pid will return negative number
+   else{
+       printStderr();
+       exit(EXIT_FAILURE);
+   }
 }
 
 
@@ -102,8 +130,8 @@ int main(int argc, char** argv){
     
     std::vector<std::string> selection;
     selection.push_back("cd");
-    selection.push_back("exit");
     selection.push_back("pwd");
+    selection.push_back("exit");
     
     if(argc > 2){
         printStderr();
@@ -136,42 +164,11 @@ int main(int argc, char** argv){
         else{
             status = 1; //if we can't find the command, then we continue the process.
             
-            
-            pid_t pid = -1;
-    pid = fork();
-    //after we initialize the pid, 
-    if(pid == 0){
-        int size = arguments.size();
-        char *argm[size+1];
-        for(unsigned int i=0; i < size; i++){
-            std::strcpy (argm[i], arguments.at(i).c_str());
+            newProcess(arguments);
         }
-        argm[size] = 0;
-        execvp(argm[0],argm);
-        //if the execvp fail to run, then it will execute the following statement.
-        printStderr();
-        exit(EXIT_FAILURE);
-    }
-    //after we finish the child process, then we need to wait the parent process to finish
-    else if(pid > 0){
-        wait(0);
-        
-    }
-   // if the creation of a child process was unsuccessful, then the pid will return negative number
-   else{
-       printStderr();
-       exit(EXIT_FAILURE);
-   }
-            
-            
-            
-        }
-            
-        
         arguments.clear();
     }while(status);
     }
-    
     else if(argc == 2){
         char* fileName = argv[1];
         std::ifstream inputFile(fileName);
@@ -180,7 +177,6 @@ int main(int argc, char** argv){
             exit(1);
         }
         while(std::getline(inputFile,line)){
-            
         cout << line << endl;
         //if input is more than 512 characters, then we need to rerun the process.
         if(line.length()>512)
@@ -191,7 +187,7 @@ int main(int argc, char** argv){
         
         //read the input then store the arguments into the vector.
         parseCommandLine(arguments,line);
-        
+       
         //if we have empty command line
         if(arguments.size() == 0)
             continue;
@@ -202,37 +198,8 @@ int main(int argc, char** argv){
             status = excuteFunction(arguments);
         else{
             status = 1; //if we can't find the command, then we continue the process.
-           
-            pid_t pid = -1;
-    pid = fork();
-    //after we initialize the pid, 
-    if(pid == 0){
-        int size = arguments.size();
-        char *argm[size+1];
-        for(unsigned int i=0; i < size; i++){
-            std::strcpy (argm[i], arguments.at(i).c_str());
-        }
-        argm[size] = 0;
-        execvp(argm[0],argm);
-        //if the execvp fail to run, then it will execute the following statement.
-        printStderr();
-        exit(EXIT_FAILURE);
-    }
-    //after we finish the child process, then we need to wait the parent process to finish
-    else if(pid > 0){
-        wait(0);
-        
-    }
-   // if the creation of a child process was unsuccessful, then the pid will return negative number
-   else{
-       printStderr();
-       exit(EXIT_FAILURE);
-   }
-            
-            
-        }
-            
-        
+            newProcess(arguments);
+            }
         arguments.clear();
         }
     }   
